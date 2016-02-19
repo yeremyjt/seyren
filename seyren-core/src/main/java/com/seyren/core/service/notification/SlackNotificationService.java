@@ -56,7 +56,7 @@ public class SlackNotificationService implements NotificationService {
     @Inject
     public SlackNotificationService(SeyrenConfig seyrenConfig) {
         this.seyrenConfig = seyrenConfig;
-        this.baseUrl = "https://slack.com";
+        this.baseUrl = "https://hooks.slack.com";
     }
 
     protected SlackNotificationService(SeyrenConfig seyrenConfig, String baseUrl) {
@@ -66,26 +66,13 @@ public class SlackNotificationService implements NotificationService {
 
     @Override
     public void sendNotification(Check check, Subscription subscription, List<Alert> alerts) throws NotificationFailedException {
-        String token = seyrenConfig.getSlackToken();
-        String channel = subscription.getTarget();
-        String username = seyrenConfig.getSlackUsername();
-        String iconUrl = seyrenConfig.getSlackIconUrl();
-
-        List<String> emojis = Lists.newArrayList(
-                Splitter.on(',').omitEmptyStrings().trimResults().split(seyrenConfig.getSlackEmojis())
-        );
-
-        String url = String.format("%s/api/chat.postMessage", baseUrl);
+        String url = String.format("%s/services/T02563LQP/B0MLAS09K/35YbNye0eFR7Dbp5ESc44SXe", baseUrl);
         HttpClient client = HttpClientBuilder.create().useSystemProperties().build();
         HttpPost post = new HttpPost(url);
         post.addHeader("accept", "application/json");
 
         List<BasicNameValuePair> parameters = new ArrayList<BasicNameValuePair>();
-        parameters.add(new BasicNameValuePair("token", token));
-        parameters.add(new BasicNameValuePair("channel", StringUtils.removeEnd(channel, "!")));
-        parameters.add(new BasicNameValuePair("text", formatContent(emojis, check, subscription, alerts)));
-        parameters.add(new BasicNameValuePair("username", username));
-        parameters.add(new BasicNameValuePair("icon_url", iconUrl));
+        parameters.add(new BasicNameValuePair("payload", formatContent(check, subscription, alerts)));
 
         try {
             post.setEntity(new UrlEncodedFormEntity(parameters));
@@ -111,8 +98,7 @@ public class SlackNotificationService implements NotificationService {
         return subscriptionType == SubscriptionType.SLACK;
     }
 
-    private String formatContent(List<String> emojis, Check check, Subscription subscription, List<Alert> alerts) {
-        String url = String.format("%s/#/checks/%s", seyrenConfig.getBaseUrl(), check.getId());
+    private String formatContent(Check check, Subscription subscription, List<Alert> alerts) {
         String alertsString = Joiner.on("\n").join(transform(alerts, new Function<Alert, String>() {
             @Override
             public String apply(Alert input) {
@@ -131,11 +117,9 @@ public class SlackNotificationService implements NotificationService {
 
         final String state = check.getState().toString();
 
-        return String.format("%s*%s* %s [%s]%s\n```\n%s\n```\n#%s %s",
-                Iterables.get(emojis, check.getState().ordinal(), ""),
+        return String.format("%s* %s %s\n```\n%s\n```\n#%s %s",
                 state,
                 check.getName(),
-                url,
                 description,
                 alertsString,
                 state.toLowerCase(Locale.getDefault()),
