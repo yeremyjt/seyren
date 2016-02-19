@@ -11,6 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.seyren.core.service.notification;
 
 import static com.github.restdriver.clientdriver.RestClientDriver.*;
@@ -99,7 +112,7 @@ public class SlackNotificationServiceTest {
         StringBodyCapture bodyCapture = new StringBodyCapture();
 
         clientDriver.addExpectation(
-                onRequestTo("/api/chat.postMessage")
+                onRequestTo("/services/T02563LQP/B0MLAS09K/35YbNye0eFR7Dbp5ESc44SXe")
                         .withMethod(ClientDriverRequest.Method.POST)
                         .capturingBodyIn(bodyCapture)
                         .withHeader("accept", "application/json"),
@@ -110,68 +123,8 @@ public class SlackNotificationServiceTest {
         String content = bodyCapture.getContent();
         System.out.println(decode(content));
 
-        assertThat(content, Matchers.containsString("token="));
-        assertThat(content, Matchers.containsString("&channel=target"));
-        assertThat(content, not(Matchers.containsString(encode("<!channel>"))));
-        assertThat(content, Matchers.containsString(encode("*ERROR* test-check")));
-        assertThat(content, Matchers.containsString(encode("/#/checks/123")));
-        assertThat(content, Matchers.containsString("&username=Seyren"));
-        assertThat(content, Matchers.containsString("&icon_url="));
 
-        verify(mockSeyrenConfig).getSlackEmojis();
-        verify(mockSeyrenConfig).getSlackIconUrl();
-        verify(mockSeyrenConfig).getSlackToken();
-        verify(mockSeyrenConfig).getSlackUsername();
-        verify(mockSeyrenConfig).getBaseUrl();
-    }
-
-    @Test
-    public void mentionChannelWhenTargetContainsExclamationTest() {
-        BigDecimal value = new BigDecimal("1.0");
-
-        Check check = new Check()
-                .withId("123")
-                .withEnabled(true)
-                .withName("test-check")
-                .withState(AlertType.ERROR);
-        Subscription subscription = new Subscription()
-                .withEnabled(true)
-                .withType(SubscriptionType.SLACK)
-                .withTarget("target!");
-        Alert alert = new Alert()
-                .withValue(value)
-                .withTimestamp(new DateTime())
-                .withFromType(AlertType.OK)
-                .withToType(AlertType.ERROR);
-        List<Alert> alerts = Arrays.asList(alert);
-
-        StringBodyCapture bodyCapture = new StringBodyCapture();
-
-        clientDriver.addExpectation(
-                onRequestTo("/api/chat.postMessage")
-                        .withMethod(ClientDriverRequest.Method.POST)
-                        .capturingBodyIn(bodyCapture)
-                        .withHeader("accept", "application/json"),
-                giveEmptyResponse());
-
-        notificationService.sendNotification(check, subscription, alerts);
-
-        String content = bodyCapture.getContent();
-        System.out.println(decode(content));
-
-        assertThat(content, Matchers.containsString("token="));
-        assertThat(content, Matchers.containsString("&channel=target"));
-        assertThat(content, Matchers.containsString(encode("<!channel>")));
-        assertThat(content, Matchers.containsString(encode("*ERROR* test-check")));
-        assertThat(content, Matchers.containsString(encode("/#/checks/123")));
-        assertThat(content, Matchers.containsString("&username=Seyren"));
-        assertThat(content, Matchers.containsString("&icon_url="));
-
-        verify(mockSeyrenConfig).getSlackEmojis();
-        verify(mockSeyrenConfig).getSlackIconUrl();
-        verify(mockSeyrenConfig).getSlackToken();
-        verify(mockSeyrenConfig).getSlackUsername();
-        verify(mockSeyrenConfig).getBaseUrl();
+        assertThat(content, Matchers.containsString("payload=ERROR*+test-check"));
     }
 
     String encode(String data) {
