@@ -6,6 +6,7 @@
 .idea/
 .project
 .settings/
+.extract/
 META-INF/
 target/
 node_modules/

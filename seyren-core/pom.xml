@@ -108,6 +108,11 @@
         	<groupId>com.opsgenie.integration</groupId>
         	<artifactId>sdk</artifactId>
     	</dependency>
+        <dependency>
+            <groupId>net.gpedro.integrations.slack</groupId>
+            <artifactId>slack-webhook</artifactId>
+            <version>1.1.1</version>
+        </dependency>
     </dependencies>
 	<repositories>
 	  <repository>
